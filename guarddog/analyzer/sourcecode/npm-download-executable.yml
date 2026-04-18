@@ -1,8 +1,73 @@
 rules:
-  - id: download-executable
+  - id: npm-download-executable
     languages:
       - javascript
     message: This package downloads and makes a remote binary executable
     metadata:
       description: Identify when a package downloads a remote binary and makes it executable
     mode: taint
+    pattern-sources:
+      - pattern: http.get(...)
+      - pattern: https.get(...)
+      - pattern: fetch(...)
+      - pattern: axios(...)
+      - pattern: axios.$FUNC(...)
+      - pattern: got(...)
+      - pattern: got.get(...)
+      - pattern: got.stream(...)
+      - pattern: superagent.get(...)
+      - pattern: needle(...)
+      - pattern: needle.get(...)
+    pattern-sinks:
+      - pattern-either:
+          - pattern: execFileSync($EXEC, ...)
+          - pattern: execFile($EXEC, ...)
+          - pattern: execSync($EXEC, ...)
+          - pattern: exec($EXEC, ...)
+          - pattern: spawn($EXEC, ...)
+          - pattern: spawnSync($EXEC, ...)
+          - pattern: fork($EXEC, ...)
+          - pattern: $CP.execFileSync($EXEC, ...)
+          - pattern: $CP.execFile($EXEC, ...)
+          - pattern: $CP.execSync($EXEC, ...)
+          - pattern: $CP.exec($EXEC, ...)
+          - pattern: $CP.spawn($EXEC, ...)
+          - pattern: $CP.spawnSync($EXEC, ...)
+          - pattern: $CP.fork($EXEC, ...)
+          - patterns:
+              - pattern: $RESPONSE.pipe(fs.createWriteStream($DEST, ...))
+              - metavariable-regex:
+                  metavariable: $DEST
+                  regex: (?i).*\.exe
+          - pattern: $RESPONSE.pipe(fs.createWriteStream(...))
+          - patterns:
+              - pattern: |
+                  $RESPONSE.pipe(fs.createWriteStream($LOC))
+                  ...
+                  fs.chmodSync($LOC, ...)
+          - patterns:
+              - pattern: |
+                  $RESPONSE.pipe(fs.createWriteStream($LOC))
+                  ...
+                  fs.chmod($LOC, ...)
+          - patterns:
+              - pattern: |
+                  fs.writeFile($LOC, ...)
+                  ...
+                  fs.chmodSync($LOC, ...)
+          - patterns:
+              - pattern: |
+                  fs.writeFileSync($LOC, ...)
+                  ...
+                  fs.chmodSync($LOC, ...)
+          - patterns:
+              - pattern: fs.writeFile($DEST, ...)
+              - metavariable-regex:
+                  metavariable: $DEST
+                  regex: (?i).*\.exe
+          - patterns:
+              - pattern: fs.writeFileSync($DEST, ...)
+              - metavariable-regex:
+                  metavariable: $DEST
+                  regex: (?i).*\.exe
+    severity: WARNING
