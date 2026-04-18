@@ -1,0 +1,8 @@
+rules:
+  - id: download-executable
+    languages:
+      - javascript
+    message: This package downloads and makes a remote binary executable
+    metadata:
+      description: Identify when a package downloads a remote binary and makes it executable
+    mode: taint
