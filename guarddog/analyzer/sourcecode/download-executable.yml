@@ -2,7 +2,7 @@ rules:
   - id: download-executable
     languages:
       - python
-    message: This package is downloading making executable a remote binary
+    message: This package downloads and makes a remote binary executable
     metadata:
       description: Identify when a package downloads and makes executable a remote binary
     mode: taint
