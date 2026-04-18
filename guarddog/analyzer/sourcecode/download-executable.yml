@@ -4,7 +4,7 @@ rules:
       - python
     message: This package downloads and makes a remote binary executable
     metadata:
-      description: Identify when a package downloads and makes executable a remote binary
+      description: Identify when a package downloads a remote binary and makes it executable
     mode: taint
     pattern-sinks:
       - pattern-either:
